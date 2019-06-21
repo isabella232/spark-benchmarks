@@ -45,31 +45,27 @@ In order to launch the benchmark on a cluster, you can use the `spark-submit` sc
 benchmark is bundled, you can launch, for instance, the *write* test just typing the following script:
 
 ```
-$SPARK_HOME/bin/spark-submit \
+spark-submit \
   --master <master-url> \
   --class io.minio.spark.benchmarks.dfsio.TestDFSIO \
   --total-executor-cores <total-executor-cores> \
   --executor-cores <executor-cores> \
   --driver-memory 1g \
   --executor-memory 1g \
-  --conf spark.locality.wait=30s \
   ... # other options
   --packages io.minio:spark-benchmarks-dfsio_2.11:0.2.0 \
-  . write --numFiles 100 --fileSize 1GB --outputDir s<3a://benchmarks/DFSIO
+  . write --numFiles 10 --fileSize 1GB --outputDir s3a://benchmarks/DFSIO
 ```
 
 This test will run the corresponding *write* test using 100 input files of size 1GB.
 
-The TestDFSIO benchmark writes its files to `benchmarks` bucket, and prefix `/DFSIO` on S3 object storage. Files from older write
-runs are overwritten. If you want to preserve the output files of previous runs, you have to copy these files manually to a
-new HDFS location. Benchmark results are appended to a local file called `TestDFSIO_results.log` in the current local directory
-and also printed to log. If you want to save them to different filename, set the `-resFile` option appropriately.
+The TestDFSIO benchmark writes its files to `benchmarks` bucket, and prefix `/DFSIO` on S3 object storage. Files from older write runs are overwritten. If you want to preserve the output files of previous runs, you have to copy these files manually to a new HDFS location. Benchmark results are appended to a local file called `TestDFSIO_results.log` in the current local directory and also printed to log. If you want to save them to different filename, set the `-resFile` option appropriately.
 
 The benchmark accepts different arguments passed to the main method of the main class. You can use the option `--help`
 to print the different combinations:
 
 ```
-$SPARK_HOME/bin/spark-submit \
+spark-submit \
   --master local \
   --class io.minio.spark.benchmarks.dfsio.TestDFSIO \
   --packages io.minio:spark-benchmarks-dfsio_2.11:0.2.0 \
@@ -115,17 +111,16 @@ Remove previous test data. This command deletes de output directory.
 Following the previous instructions, the *read* test should be launched like this:
 
 ```
-$SPARK_HOME/bin/spark-submit \
+spark-submit \
   --master <master-url> \
   --class io.minio.spark.benchmarks.dfsio.TestDFSIO \
   --total-executor-cores <total-executor-cores> \
   --executor-cores <executor-cores> \
   --driver-memory 1g \
   --executor-memory 1g \
-  --conf spark.locality.wait=30s \
   ... # other options
   --packages io.minio:spark-benchmarks-dfsio_2.11:0.2.0 \
-  . read --numFiles 100 --fileSize 1GB --outputDir s3a://benchmarks/DFSIO
+  . read --numFiles 10 --fileSize 1GB --outputDir s3a://benchmarks/DFSIO
 ```
 
 Note that each time the *write* phase is executed, the benchmark data is previously cleaned up. However, if you need to force
@@ -168,8 +163,7 @@ Average IO rate mb/sec: 22.341
 ```
 
 The most significant metrics are  *Throughput mb/sec* and *Average IO rate mb/sec*. Both of them are based on the file size
-written or read by every individual task and the elapsed time to do so. Therefore, it excludes the scheduling time of the tasks
-from the calculations.
+written or read by every individual task and the elapsed time to do so. Therefore, it excludes the scheduling time of the tasks from the calculations.
 
 Having this in mind, the *Throughput* metric for the whole job, where *N* is the number of tasks, is defined as follows:
 
